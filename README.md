@@ -2,6 +2,45 @@
 
 A general-purpose starting point for developing reusable, reproducible Python research analyses with synthetic data.
 
+## Remove duplicate CSV rows
+
+Keep the first row for each `DONOR_ID` using the standard library (no new dependencies):
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\remove_duplicates.py .\synthetic_data\invented_gifts.csv
+.\.venv\Scripts\python.exe .\scripts\remove_duplicates.py .\synthetic_data\invented_gifts.csv --output .\synthetic_data\unique_gifts.csv
+```
+
+These input paths are placeholders for user-created synthetic CSVs. With no
+`--output`, `invented_gifts.csv` produces `invented_gifts_deduplicated.csv` beside
+the resolved input file (beside the target when the input is a symlink).
+Relative explicit output paths are relative to the current working directory.
+
+Only `DONOR_ID` determines duplicates, even when other fields differ. Keep the
+entire first row in file order, rather than choosing by gift date or merging fields.
+IDs are compared as trimmed, case-sensitive text; leading zeros remain significant.
+The retained row is unchanged, including original ID whitespace and blank details.
+Exactly one `DONOR_ID` header is required, and blank IDs are errors. Original row
+and column order are preserved. No donor aggregation or missing-value conversion
+is performed. CSV quoting and line endings may be rewritten. Input must be comma-delimited
+UTF-8 with an optional BOM; output is UTF-8 with BOM for Excel. A nonblank header
+and consistent row widths are required. Header-only files and duplicate column
+names other than `DONOR_ID` are supported; empty files, blank lines, and malformed quoting are rejected.
+
+The original file cannot be the output, including symlink and hard-link aliases.
+Destination folders must already exist, and existing outputs require `--overwrite`.
+The complete input is validated before writing, but an I/O failure during writing
+can leave a partial output. Keep destination paths under your control; concurrent
+filesystem changes can invalidate path checks. Unique rows are held in memory.
+The CLI prints completion or errors without CSV contents or file paths.
+Develop and test with invented synthetic records only.
+
+Reusable logic is in `src/csv_deduplicate.py`. Run its synthetic tests with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_csv_deduplicate.py
+```
+
 ## Donor giving summaries
 
 Aggregate a gift-level CSV into two ranked CSVs using the standard-library script
