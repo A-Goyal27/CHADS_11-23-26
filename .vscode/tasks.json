@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Generate default data overview",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": [
+        "${workspaceFolder}/synthetic_data/build_data_overview.py",
+        "--input",
+        "${input:overviewInputCsv}",
+        "--output",
+        "${input:overviewOutputMarkdown}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate local-details data overview",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": [
+        "${workspaceFolder}/synthetic_data/build_data_overview.py",
+        "--input",
+        "${input:overviewInputCsv}",
+        "--output",
+        "${input:overviewOutputMarkdown}",
+        "--local-details"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "overviewInputCsv",
+      "type": "promptString",
+      "description": "Full input CSV path, without quotation marks"
+    },
+    {
+      "id": "overviewOutputMarkdown",
+      "type": "promptString",
+      "default": "",
+      "description": "Optional output Markdown path outside the repository; leave blank for <input-name>_overview.md beside the input CSV"
+    }
+  ]
+}
