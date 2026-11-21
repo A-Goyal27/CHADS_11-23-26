@@ -2,6 +2,59 @@
 
 A general-purpose starting point for developing reusable, reproducible Python research analyses with synthetic data.
 
+## Donor giving summaries
+
+Aggregate a gift-level CSV into two ranked CSVs using the standard-library script
+(no additional dependencies). Develop and test with invented synthetic records
+only. Real donor files must be handled separately in an authorized environment;
+do not place real donor records or results in this repository.
+
+From the repository root, with a synthetic input and existing output directory:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\aggregate_donors.py .\synthetic_data\invented_gifts.csv --all-output .\synthetic_data\invented_all_donors.csv --top-output .\synthetic_data\invented_top_100.csv
+```
+
+The input in this command is a placeholder for a user-created synthetic CSV.
+The script reads UTF-8 CSVs (with or without a BOM) and writes UTF-8 CSVs with a
+BOM for Excel. Required headers are `FIRST_NAME`, `LAST_NAME`, `SALUTATION`,
+`EMAIL`, `ADDRESS`, `CITY`, `STATE`, `ZIP`, `AMOUNT`, `GIFT_DATE`, and `DONOR_ID`.
+Original column order and any additional columns are preserved.
+
+- `DONOR_ID` is the only grouping key. IDs are trimmed text; leading zeros
+  remain significant. Blank IDs are errors. Names do not determine identity.
+- `AMOUNT` becomes total giving across every input row for that donor. All gifts
+  count, including repeated rows and negative amounts. Values must use one
+  currency and at most two decimal places. Plain numbers, dollar-prefixed
+  values, and correctly grouped thousands separators are supported; CSV values
+  containing commas must be quoted. Negative values use a leading minus sign
+  (for example, `-12.50` or `-$12.50`). Missing or malformed amounts are errors.
+  Decimal arithmetic preserves exact sums; output uses two decimal places.
+- All remaining details come together from the row with the latest gift date,
+  including any blank fields. Equal dates select the last row in input order.
+  `GIFT_DATE` therefore means **most recent gift date**, while `AMOUNT` is the
+  total across dates. ZIP codes and other text fields retain leading zeros.
+- Default dates are ISO `YYYY-MM-DD` or US `MM/DD/YYYY`. Use
+  `--date-format "%d/%m/%Y"` for day/month/year inputs. Missing or invalid dates
+  are errors. No date filtering is applied.
+- Both outputs sort by total giving descending, then donor ID ascending as
+  text. The top output contains at most 100 donors; ties at the cutoff are
+  resolved by donor ID. Header-only input produces two header-only outputs.
+
+Input and output paths must differ, destination directories must already exist,
+and existing outputs require `--overwrite`. All input rows are validated before
+writing. Validation errors report row numbers and field names without donor
+values. Writes to the two files are sequential: an operating-system failure
+during writing can leave a partial set of outputs. CSV output does not retain
+spreadsheet formatting. The script loads the donor summaries into memory.
+
+Reusable functions are in `src/donor_giving.py`. Run the synthetic aggregation
+tests with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_donor_giving.py
+```
+
 ## Directory structure
 
 Use this Windows folder layout:
