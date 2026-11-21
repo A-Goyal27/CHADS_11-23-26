@@ -12,10 +12,13 @@ do not place real donor records or results in this repository.
 From the repository root, with a synthetic input and existing output directory:
 
 ```powershell
-.\.venv\Scripts\python.exe .\scripts\aggregate_donors.py .\synthetic_data\invented_gifts.csv --all-output .\synthetic_data\invented_all_donors.csv --top-output .\synthetic_data\invented_top_100.csv
+.\.venv\Scripts\python.exe .\scripts\aggregate_donors.py .\synthetic_data\invented_gifts.csv
 ```
 
 The input in this command is a placeholder for a user-created synthetic CSV.
+By default, outputs are saved beside the resolved input file as
+`invented_gifts_all_donors.csv` and `invented_gifts_top_100.csv`.
+Use `--all-output` and/or `--top-output` to override either destination independently.
 The script reads UTF-8 CSVs (with or without a BOM) and writes UTF-8 CSVs with a
 BOM for Excel. Required headers are `FIRST_NAME`, `LAST_NAME`, `SALUTATION`,
 `EMAIL`, `ADDRESS`, `CITY`, `STATE`, `ZIP`, `AMOUNT`, `GIFT_DATE`, and `DONOR_ID`.

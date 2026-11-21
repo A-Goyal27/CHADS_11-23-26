@@ -79,11 +79,16 @@ def aggregate_gifts(input_path, *, date_format=None):
     return headers, rows
 
 
-def write_summaries(input_path, all_output, top_output, *, date_format=None,
+def write_summaries(input_path, all_output=None, top_output=None, *, date_format=None,
                     overwrite=False):
     """Validate input and destinations, then write all donors and the top 100."""
     source = Path(input_path).resolve()
-    outputs = [Path(all_output).resolve(), Path(top_output).resolve()]
+    outputs = [
+        Path(all_output).resolve() if all_output is not None
+        else source.with_name(f"{source.stem}_all_donors.csv"),
+        Path(top_output).resolve() if top_output is not None
+        else source.with_name(f"{source.stem}_top_100.csv"),
+    ]
     if source in outputs or outputs[0] == outputs[1]:
         raise ValueError("Input and both output paths must be different.")
     for output in outputs:

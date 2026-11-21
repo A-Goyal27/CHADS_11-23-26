@@ -12,8 +12,10 @@ from donor_giving import write_summaries
 def main():
     parser = argparse.ArgumentParser(description="Sum gifts per DONOR_ID and export ranked CSVs.")
     parser.add_argument("input", type=Path)
-    parser.add_argument("--all-output", required=True, type=Path)
-    parser.add_argument("--top-output", required=True, type=Path)
+    parser.add_argument("--all-output", type=Path,
+                        help="Default: <input-name>_all_donors.csv beside input")
+    parser.add_argument("--top-output", type=Path,
+                        help="Default: <input-name>_top_100.csv beside input")
     parser.add_argument("--date-format", help="Explicit strptime format, e.g. %%d/%%m/%%Y")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()

@@ -154,3 +154,29 @@ def test_cli(work):
     ], capture_output=True, text=True, cwd=work)
     assert result.returncode == 0, result.stderr
     assert "Wrote 1 donor summaries" in result.stdout
+
+
+@pytest.mark.parametrize("override", [None, "all", "top"])
+def test_cli_default_destinations(work, override):
+    import sys
+    input_dir = work / "input folder"
+    input_dir.mkdir()
+    source = write_input(input_dir, [gift()])
+    command = [sys.executable, str(ROOT / "scripts/aggregate_donors.py"), str(source)]
+    all_path = input_dir / "synthetic_gifts_all_donors.csv"
+    top_path = input_dir / "synthetic_gifts_top_100.csv"
+    if override:
+        custom = work / "custom.csv"
+        command.extend([f"--{override}-output", str(custom)])
+        if override == "all":
+            all_path = custom
+        else:
+            top_path = custom
+    result = subprocess.run(command, capture_output=True, text=True, cwd=work)
+    assert result.returncode == 0, result.stderr
+    assert len(read_csv(all_path)[1]) == 1
+    assert read_csv(top_path) == read_csv(all_path)
+    # Existing default outputs retain the same overwrite protection.
+    result = subprocess.run(command, capture_output=True, text=True, cwd=work)
+    assert result.returncode == 2
+    assert "already exists" in result.stderr
